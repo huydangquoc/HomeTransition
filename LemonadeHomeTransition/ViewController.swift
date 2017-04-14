@@ -64,7 +64,6 @@ class ViewController: UIViewController {
     case UISwipeGestureRecognizerDirection.right:
       swipeRightTransition()
       performSegue(withIdentifier: "notifSegue", sender: nil)
-      
     case UISwipeGestureRecognizerDirection.left:
       swipeLeftTransition()
       performSegue(withIdentifier: "navDrawerSegue", sender: nil)
@@ -76,8 +75,10 @@ class ViewController: UIViewController {
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     if segue.identifier == "navDrawerSegue" {
       segue.destination.isHeroEnabled = true
+      //segue.destination.heroModalAnimationType = .selectBy(presenting: .push(direction: .left), dismissing: .push(direction: .right))
     } else if segue.identifier == "notifSegue" {
       segue.destination.isHeroEnabled = true
+      //segue.destination.heroModalAnimationType = .selectBy(presenting: .push(direction: .right), dismissing: .push(direction: .left))
     }
   }
   
