@@ -14,4 +14,8 @@ class NavigationDrawerViewController: UIViewController {
     super.viewDidLoad()
   }
   
+  override func animate(progress: CGFloat, isFrom: Bool) {
+    print("NavigationDrawerViewController, progress: \(progress), direction: \(isFrom ? "left" : "right")")
+  }
+  
 }

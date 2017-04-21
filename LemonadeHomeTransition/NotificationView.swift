@@ -14,4 +14,8 @@ class NotificationView: UIViewController {
     super.viewDidLoad()
   }
   
+  override func animate(progress: CGFloat, isFrom: Bool) {
+    print("NotificationView, progress: \(progress), direction: \(isFrom ? "left" : "right")")
+  }
+  
 }

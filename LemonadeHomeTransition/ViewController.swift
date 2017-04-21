@@ -20,4 +20,8 @@ class ViewController: UIViewController {
     // Do any additional setup after loading the view, typically from a nib.
   }
   
+  override func animate(progress: CGFloat, isFrom: Bool) {
+    print("ViewController, progress: \(progress), direction: \(isFrom ? "left" : "right")")
+  }
+  
 }

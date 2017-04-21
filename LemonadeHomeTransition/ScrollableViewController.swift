@@ -8,6 +8,10 @@
 
 import UIKit
 
+extension UIViewController {
+  func animate(progress: CGFloat, isFrom: Bool) {}
+}
+
 internal enum Page {
   case navigationDrawer
   case home
@@ -96,7 +100,7 @@ class ScrollableViewController: UIViewController {
         //print(NSString(format: "Showing view controller at index: %i", i))
         var viewFrame = self.view.bounds
         viewFrame.origin.x = CGFloat(i) * self.view.bounds.size.width
-        controllers[i].view.frame = viewFrame
+        controllers[i].view.frame = viewFrame        
         self.addChildViewController(controllers[i])
         scrollView.addSubview(controllers[i].view)
         controllers[i].didMove(toParentViewController: self)
@@ -109,18 +113,27 @@ class ScrollableViewController: UIViewController {
 extension ScrollableViewController: UIScrollViewDelegate {
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    let fromIndex = floor(scrollView.bounds.origin.x  / scrollView.bounds.size.width)
-    let toIndex = floor((scrollView.bounds.maxX - 1) / scrollView.bounds.size.width)
-    let scrollProgress = 2 * (scrollView.contentOffset.x / (scrollView.contentSize.width - scrollView.frame.size.width))
+    let fromIndex = Int(floor(scrollView.bounds.origin.x  / scrollView.bounds.size.width))
+    let toIndex = Int(floor((scrollView.bounds.maxX - 1) / scrollView.bounds.size.width))
+    layoutViewController(fromIndex: Int(fromIndex), toIndex: Int(toIndex))
     
-    let toProgress = scrollProgress - fromIndex
+    guard fromIndex >= 0 else { return }
+    guard toIndex < controllers.count else { return }
+    
+    let scrollProgress = 2 * (scrollView.contentOffset.x / (scrollView.contentSize.width - scrollView.frame.size.width))
+    let toProgress = scrollProgress - CGFloat(fromIndex)
     let fromProgress = 1 - toProgress
     
-    layoutViewController(fromIndex: Int(fromIndex), toIndex: Int(toIndex))
+    controllers[fromIndex].animate(progress: fromProgress, isFrom: true)
+    controllers[toIndex].animate(progress: toProgress, isFrom: false)
   }
   
   func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
     isDragging = true
+  }
+  
+  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    isDragging = false
   }
   
 }
