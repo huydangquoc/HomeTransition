@@ -103,8 +103,6 @@
                         <outlet property="compassIcon" destination="8Oi-4F-JBB" id="sEG-vj-xhv"/>
                         <outlet property="leftButton" destination="y6n-QB-BUc" id="5A7-lu-0cl"/>
                         <outlet property="rightButton" destination="a2k-Xz-3Wc" id="32N-CX-qFp"/>
-                        <segue destination="nOx-bU-I2J" kind="presentation" identifier="notifSegue" id="v2R-7j-oTX"/>
-                        <segue destination="Gt5-ov-1vP" kind="presentation" identifier="navDrawerSegue" id="P3W-b2-EVV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

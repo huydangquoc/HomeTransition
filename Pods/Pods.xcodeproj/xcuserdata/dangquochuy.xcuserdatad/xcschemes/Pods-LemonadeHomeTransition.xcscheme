@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "33E6A1E4FD3FC1EFB256F8342659824F"
+               BlueprintIdentifier = "216056D31460CEFE918AEAA5CCDA69D5"
                BuildableName = "Pods_LemonadeHomeTransition.framework"
                BlueprintName = "Pods-LemonadeHomeTransition"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "33E6A1E4FD3FC1EFB256F8342659824F"
+            BlueprintIdentifier = "216056D31460CEFE918AEAA5CCDA69D5"
             BuildableName = "Pods_LemonadeHomeTransition.framework"
             BlueprintName = "Pods-LemonadeHomeTransition"
             ReferencedContainer = "container:Pods.xcodeproj">
