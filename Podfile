@@ -6,5 +6,6 @@ target 'LemonadeHomeTransition' do
   use_frameworks!
 
   # Pods for LemonadeHomeTransition
+  pod 'Interpolate'
   
 end

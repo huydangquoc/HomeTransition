@@ -14,14 +14,24 @@ class ViewController: UIViewController {
   @IBOutlet weak var bubblesView: UIView!
   @IBOutlet weak var compassIcon: UIImageView!
   @IBOutlet weak var carouselView: UIImageView!
-
+  
+  // Interpolations
+  var isFrom: Bool!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view, typically from a nib.
   }
   
-  override func animate(progress: CGFloat, isFrom: Bool) {
-    print("ViewController, progress: \(progress), direction: \(isFrom ? "left" : "right")")
-  }
+}
+
+// Interpolations
+extension ViewController: UIAnimateViewController {
+  func setupInterpolationsTo() {}
+  func animateTo(progress: CGFloat) {}
+  func invalidateTo() {}
   
+  func setupInterpolationsFrom() {}
+  func animateFrom(progress: CGFloat) {}
+  func invalidateFrom() {}
 }

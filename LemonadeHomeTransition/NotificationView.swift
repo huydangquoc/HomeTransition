@@ -7,15 +7,34 @@
 //
 
 import UIKit
+import Interpolate
 
 class NotificationView: UIViewController {
+  // Interpolations
+  var isFrom: Bool!
+  var viewFading: Interpolate?
   
   override func viewDidLoad() {
     super.viewDidLoad()
   }
   
-  override func animate(progress: CGFloat, isFrom: Bool) {
-    print("NotificationView, progress: \(progress), direction: \(isFrom ? "left" : "right")")
+}
+
+// Interpolations
+extension NotificationView: UIAnimateViewController {
+  func setupInterpolationsTo() {
+    viewFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.view.alpha = alpha
+    })
+  }
+  func animateTo(progress: CGFloat) {
+    viewFading?.progress = progress
+  }
+  func invalidateTo() {
+    viewFading?.invalidate()
   }
   
+  func setupInterpolationsFrom() {}
+  func animateFrom(progress: CGFloat) {}
+  func invalidateFrom() {}
 }

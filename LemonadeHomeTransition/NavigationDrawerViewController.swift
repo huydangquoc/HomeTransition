@@ -7,15 +7,35 @@
 //
 
 import UIKit
+import Interpolate
 
 class NavigationDrawerViewController: UIViewController {
+  // Interpolations
+  var isFrom: Bool!
+  var viewFading: Interpolate?
   
   override func viewDidLoad() {
     super.viewDidLoad()
   }
   
-  override func animate(progress: CGFloat, isFrom: Bool) {
-    print("NavigationDrawerViewController, progress: \(progress), direction: \(isFrom ? "left" : "right")")
+}
+
+// Interpolations
+extension NavigationDrawerViewController: UIAnimateViewController {
+  func setupInterpolationsTo() {}
+  func animateTo(progress: CGFloat) {}
+  func invalidateTo() {}
+  
+  func setupInterpolationsFrom() {
+    viewFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.view.alpha = alpha
+    })
+  }
+  func animateFrom(progress: CGFloat) {
+    viewFading?.progress = progress
+  }
+  func invalidateFrom() {
+    viewFading?.invalidate()
   }
   
 }

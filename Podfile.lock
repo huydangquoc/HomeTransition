@@ -1,3 +1,12 @@
-PODFILE CHECKSUM: 239bbd2250e5a5306f6efd91e4e3547fa318dbcb
+PODS:
+  - Interpolate (0.4.0)
+
+DEPENDENCIES:
+  - Interpolate
+
+SPEC CHECKSUMS:
+  Interpolate: 682895f1a2fc091da0ba53ccb018520daf51f8fd
+
+PODFILE CHECKSUM: 0bc29de78b8e59dcf6113bd5b9cb5a82dc1e0003
 
 COCOAPODS: 1.2.0

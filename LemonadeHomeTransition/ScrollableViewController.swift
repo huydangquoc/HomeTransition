@@ -8,8 +8,47 @@
 
 import UIKit
 
-extension UIViewController {
-  func animate(progress: CGFloat, isFrom: Bool) {}
+protocol UIAnimateViewController {
+  var isFrom: Bool! { get set }
+  
+  func setupInterpolationsFrom()
+  func animateFrom(progress: CGFloat)
+  func invalidateFrom()
+  
+  func setupInterpolationsTo()
+  func animateTo(progress: CGFloat)
+  func invalidateTo()
+}
+
+extension UIAnimateViewController {
+  
+  final func setupInterpolations(isFrom: Bool) {
+    isFrom ? setupInterpolationsFrom() : setupInterpolationsTo()
+  }
+  
+  final mutating func animate(progress: CGFloat, isFrom: Bool) {
+    guard progress >= 0 && progress <= 1 else { return }
+    
+    if self.isFrom == nil {
+      setupInterpolations(isFrom: isFrom)
+    } else if isFrom != self.isFrom {
+      invalidate(isFrom: self.isFrom)
+      setupInterpolations(isFrom: isFrom)
+    }
+    self.isFrom = isFrom
+    
+    isFrom ? animateFrom(progress: progress) : animateTo(progress: progress)
+    
+    if progress == 1 {
+      invalidate(isFrom: isFrom)
+      self.isFrom = nil
+    }
+  }
+  
+  final func invalidate(isFrom: Bool) {
+    isFrom ? invalidateFrom() : invalidateTo()
+  }
+  
 }
 
 internal enum Page {
@@ -31,17 +70,17 @@ class ScrollableViewController: UIViewController {
     switch page {
     case .navigationDrawer:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
-      let vc = storyboard.instantiateViewController(withIdentifier: "NavigationDrawerViewController")
+      let vc = storyboard.instantiateViewController(withIdentifier: "NavigationDrawerViewController") as! NavigationDrawerViewController
       return vc
       
     case .home:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
-      let vc = storyboard.instantiateViewController(withIdentifier: "HomeViewController")
+      let vc = storyboard.instantiateViewController(withIdentifier: "HomeViewController") as! ViewController
       return vc
       
     case .notification:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
-      let vc = storyboard.instantiateViewController(withIdentifier: "NotificationViewController")
+      let vc = storyboard.instantiateViewController(withIdentifier: "NotificationViewController") as! NotificationView
       return vc
     }
   }
@@ -119,13 +158,21 @@ extension ScrollableViewController: UIScrollViewDelegate {
     
     guard fromIndex >= 0 else { return }
     guard toIndex < controllers.count else { return }
+    guard var fromAnimateVC = controllers[fromIndex] as? UIAnimateViewController else { return }
+    guard var toAnimateVC = controllers[toIndex] as? UIAnimateViewController else { return }
     
     let scrollProgress = 2 * (scrollView.contentOffset.x / (scrollView.contentSize.width - scrollView.frame.size.width))
     let toProgress = scrollProgress - CGFloat(fromIndex)
     let fromProgress = 1 - toProgress
     
-    controllers[fromIndex].animate(progress: fromProgress, isFrom: true)
-    controllers[toIndex].animate(progress: toProgress, isFrom: false)
+    print(fromIndex, toIndex, fromProgress, toProgress)    
+    
+    if fromIndex == toIndex {
+      fromAnimateVC.animate(progress: fromProgress, isFrom: true)
+    } else {
+      fromAnimateVC.animate(progress: fromProgress, isFrom: true)
+      toAnimateVC.animate(progress: toProgress, isFrom: false)
+    }
   }
   
   func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
