@@ -12,6 +12,7 @@ import Interpolate
 class NavigationDrawerViewController: UIViewController {
   // Interpolations
   var isFrom: Bool!
+  var index: Int!
   var viewFading: Interpolate?
   
   override func viewDidLoad() {
@@ -27,7 +28,7 @@ extension NavigationDrawerViewController: UIAnimateViewController {
   func invalidateTo() {}
   
   func setupInterpolationsFrom() {
-    viewFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+    viewFading = Interpolate(from: 0, to: 1, function: BasicInterpolation.easeIn, apply: { [weak self] (alpha) in
       self?.view.alpha = alpha
     })
   }

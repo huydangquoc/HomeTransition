@@ -10,6 +10,7 @@ import UIKit
 
 protocol UIAnimateViewController {
   var isFrom: Bool! { get set }
+  var index: Int! { get set }
   
   func setupInterpolationsFrom()
   func animateFrom(progress: CGFloat)
@@ -71,16 +72,19 @@ class ScrollableViewController: UIViewController {
     case .navigationDrawer:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
       let vc = storyboard.instantiateViewController(withIdentifier: "NavigationDrawerViewController") as! NavigationDrawerViewController
+      vc.index = 0
       return vc
       
     case .home:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
       let vc = storyboard.instantiateViewController(withIdentifier: "HomeViewController") as! ViewController
+      vc.index = 1
       return vc
       
     case .notification:
       let storyboard = UIStoryboard(name: "Main", bundle: nil)
       let vc = storyboard.instantiateViewController(withIdentifier: "NotificationViewController") as! NotificationView
+      vc.index = 2
       return vc
     }
   }
@@ -126,17 +130,8 @@ class ScrollableViewController: UIViewController {
   
   internal func layoutViewController(fromIndex: Int, toIndex: Int) {
     for i in 0 ..< controllers.count {
-      // Remove views that should not be visible anymore
-      if (controllers[i].view.superview != nil && (i < fromIndex || i > toIndex)) {
-        //print(NSString(format: "Hiding view controller at index: %i", i))
-        controllers[i].willMove(toParentViewController: nil)
-        controllers[i].view.removeFromSuperview()
-        controllers[i].removeFromParentViewController()
-      }
-      
       // Add views that are now visible
       if (controllers[i].view.superview == nil && (i >= fromIndex && i <= toIndex)) {
-        //print(NSString(format: "Showing view controller at index: %i", i))
         var viewFrame = self.view.bounds
         viewFrame.origin.x = CGFloat(i) * self.view.bounds.size.width
         controllers[i].view.frame = viewFrame        

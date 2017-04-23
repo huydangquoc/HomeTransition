@@ -62,18 +62,15 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="86H-C6-Zzk" userLabel="Bubbles View">
                                 <rect key="frame" x="0.0" y="110" width="375" height="416"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="login_bg" translatesAutoresizingMaskIntoConstraints="NO" id="n5i-Uu-lh8">
-                                        <rect key="frame" x="0.0" y="55.5" width="375" height="305.5"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" secondItem="n5i-Uu-lh8" secondAttribute="height" multiplier="750:611" id="GWc-08-s1P"/>
-                                        </constraints>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="login_bg" translatesAutoresizingMaskIntoConstraints="NO" id="n5i-Uu-lh8">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="416"/>
                                     </imageView>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="n5i-Uu-lh8" firstAttribute="leading" secondItem="86H-C6-Zzk" secondAttribute="leading" id="Grv-v2-bdz"/>
                                     <constraint firstAttribute="trailing" secondItem="n5i-Uu-lh8" secondAttribute="trailing" id="MqF-IR-D9Z"/>
-                                    <constraint firstItem="n5i-Uu-lh8" firstAttribute="centerY" secondItem="86H-C6-Zzk" secondAttribute="centerY" id="ziz-h6-DIk"/>
+                                    <constraint firstItem="n5i-Uu-lh8" firstAttribute="top" secondItem="86H-C6-Zzk" secondAttribute="top" id="NlE-nT-cC8"/>
+                                    <constraint firstAttribute="bottom" secondItem="n5i-Uu-lh8" secondAttribute="bottom" id="TaR-u6-Cca"/>
                                 </constraints>
                             </view>
                             <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icCompass" translatesAutoresizingMaskIntoConstraints="NO" id="8Oi-4F-JBB">
