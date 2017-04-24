@@ -7,29 +7,36 @@
 //
 
 import UIKit
+import Interpolate
 
 class NavigationDrawerViewController: UIViewController {
+  // Interpolations
+  var isFrom: Bool!
+  var index: Int!
+  var viewFading: Interpolate?
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    // my tricky way, this should be control by a flag
-    view.heroModifiers = [.fade, .translate(x: -UIScreen.main.bounds.width)]
   }
   
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
-  }
+}
+
+// Interpolations
+extension NavigationDrawerViewController: UIAnimateViewController {
+  func setupInterpolationsTo() {}
+  func animateTo(progress: CGFloat) {}
+  func invalidateTo() {}
   
-  /*
-   // MARK: - Navigation
-   
-   // In a storyboard-based application, you will often want to do a little preparation before navigation
-   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-   // Get the new view controller using segue.destinationViewController.
-   // Pass the selected object to the new view controller.
-   }
-   */
+  func setupInterpolationsFrom() {
+    viewFading = Interpolate(from: 0, to: 1, function: BasicInterpolation.easeIn, apply: { [weak self] (alpha) in
+      self?.view.alpha = alpha
+    })
+  }
+  func animateFrom(progress: CGFloat) {
+    viewFading?.progress = progress
+  }
+  func invalidateFrom() {
+    viewFading?.invalidate()
+  }
   
 }

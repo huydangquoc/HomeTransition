@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Hero
+import Interpolate
 
 class ViewController: UIViewController {
   @IBOutlet weak var leftButton: UIButton!
@@ -15,91 +15,143 @@ class ViewController: UIViewController {
   @IBOutlet weak var bubblesView: UIView!
   @IBOutlet weak var compassIcon: UIImageView!
   @IBOutlet weak var carouselView: UIImageView!
-
+  
+  // Interpolations
+  var isFrom: Bool!
+  var index: Int!
+  
+  var bubblesViewFading: Interpolate?
+  var leftButtonFading: Interpolate?
+  var rightButtonFading: Interpolate?
+  var compassIconFading: Interpolate?
+  var carouselViewFading: Interpolate?
+  var viewPosition: Interpolate?
+  var carouselViewScale: Interpolate?
+  var BubblesTransform: Interpolate?
+  var compassTransform: Interpolate?
+  
+  // support
+  var carouselRect: CGRect!
+  var bubblesOriginalTransform: CGAffineTransform!
+  var compassOriginalTransform: CGAffineTransform!
+  var viewWidth: CGFloat!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
+    
     // Do any additional setup after loading the view, typically from a nib.
-    
-    // prepare left swipe
-    let swipeLeft: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
-    swipeLeft.direction = UISwipeGestureRecognizerDirection.left
-    view.addGestureRecognizer(swipeLeft)
-    // prepare right swipe
-    let swipeRight: UISwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipe))
-    swipeRight.direction = UISwipeGestureRecognizerDirection.right
-    view.addGestureRecognizer(swipeRight)
-    
-    setupTransition()
+    carouselRect = carouselView.frame
+    bubblesOriginalTransform = bubblesView.transform
+    compassOriginalTransform = compassIcon.transform
+    viewWidth = view.bounds.size.width
   }
   
-  func setupTransition() {
-    leftButton.heroID = "left"
-    leftButton.heroModifiers = [.fade]
-    
-    rightButton.heroID = "right"
-    rightButton.heroModifiers = [.fade]
-    
-    carouselView.heroID = "carousel"
-    carouselView.heroModifiers = [.fade, .scale(0.5)]
-    
-    bubblesView.heroID = "bubbles"
-    
-    compassIcon.heroID = "compass"
-    
-    isHeroEnabled = true
-  }
-  
-  func swipeLeftTransition() {
-    bubblesView.heroModifiers = [.fade, .scale(0.5), .translate(CGPoint(x: -UIScreen.main.bounds.width, y: 0))]
-    compassIcon.heroModifiers = [.fade, .scale(0.5), .rotate(CGFloat.pi / 2)]
-  }
-  
-  func swipeRightTransition() {
-    bubblesView.heroModifiers = [.fade, .scale(0.5), .translate(CGPoint(x: UIScreen.main.bounds.width, y: 0))]
-    compassIcon.heroModifiers = [.fade, .scale(0.5), .rotate(-CGFloat.pi / 2)]
-  }
-  
-  func swipe(sender: UISwipeGestureRecognizer) {
-    switch sender.direction {
-    case UISwipeGestureRecognizerDirection.right:
-      swipeRightTransition()
-      performSegue(withIdentifier: "notifSegue", sender: nil)
-    case UISwipeGestureRecognizerDirection.left:
-      swipeLeftTransition()
-      performSegue(withIdentifier: "navDrawerSegue", sender: nil)
-    default:
-      break
-    }
-  }
-  
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    if segue.identifier == "navDrawerSegue" {
-      segue.destination.isHeroEnabled = true
-      //segue.destination.heroModalAnimationType = .selectBy(presenting: .push(direction: .left), dismissing: .push(direction: .right))
-    } else if segue.identifier == "notifSegue" {
-      segue.destination.isHeroEnabled = true
-      //segue.destination.heroModalAnimationType = .selectBy(presenting: .push(direction: .right), dismissing: .push(direction: .left))
-    }
-  }
-  
-  @IBAction func unwindToHome(s: UIStoryboardSegue) {
-    if let navVC = s.source as? NavigationDrawerViewController {
-      navVC.hero_dismissViewController()
-    } else if let notifVC = s.source as? NotificationView {
-      notifVC.hero_dismissViewController()
-    }
-  }
-
 }
 
-//      let transition: CATransition = CATransition()
-//      transition.duration = 0.25
-//      transition.type = kCATransitionReveal
-//      transition.subtype = kCATransitionFromRight
-//      navVC.view.window!.layer.add(transition, forKey: nil)
-
-//        let transition: CATransition = CATransition()
-//        transition.duration = 0.25
-//        transition.type = kCATransitionReveal
-//        transition.subtype = kCATransitionFromLeft
-//        notifVC.view.window!.layer.add(transition, forKey: nil)
+// Interpolations
+extension ViewController: UIAnimateViewController {
+  
+  func setupInterpolationsTo() {
+    commonSetupInterpolations()
+    
+    let endX = CGFloat(index) * viewWidth
+    let startX = endX - viewWidth
+    viewPosition = Interpolate(values: [startX, endX], apply: { [weak self] (x) in
+      self?.view.frame.origin.x = x
+    })
+    
+    compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
+      var t = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
+      t = t.rotated(by: CGFloat.pi * -factor)
+      self?.compassIcon.transform = t
+    })
+    
+    BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
+      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      t = t.translatedBy(x: deltaX, y: 0)
+      self?.bubblesView.transform = t
+    })
+  }
+  
+  func setupInterpolationsFrom() {
+    commonSetupInterpolations()
+    
+    let startX = CGFloat(index + 1) * viewWidth
+    let endX = startX - viewWidth
+    viewPosition = Interpolate(values: [startX, endX], apply: { [weak self] (x) in
+      self?.view.frame.origin.x = x
+    })
+    
+    compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
+      var t = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
+      t = t.rotated(by: CGFloat.pi * factor)
+      self?.compassIcon.transform = t
+    })
+    
+    BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
+      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      t = t.translatedBy(x: -deltaX, y: 0)
+      self?.bubblesView.transform = t
+    })
+  }
+  
+  internal func commonSetupInterpolations() {
+    bubblesViewFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.bubblesView.alpha = alpha
+    })
+    
+    leftButtonFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.leftButton.alpha = alpha
+    })
+    
+    rightButtonFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.rightButton.alpha = alpha
+    })
+    
+    carouselViewFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.carouselView.alpha = alpha
+    })
+    
+    compassIconFading = Interpolate(values: [0, 1], apply: { [weak self] (alpha) in
+      self?.compassIcon.alpha = alpha
+    })
+    
+    let fromRect = CGRect(x: carouselRect.origin.x + carouselRect.width / 2, y: carouselRect.origin.y + carouselRect.height / 2, width: 0, height: 0)
+    carouselViewScale = Interpolate(from: fromRect, to: carouselRect, function: BasicInterpolation.easeIn, apply: { [weak self] (frame) in
+      self?.carouselView.frame = frame
+    })
+    
+  }
+  
+  func animateTo(progress: CGFloat) {
+    commonAnimate(progress: progress)
+  }
+  
+  func animateFrom(progress: CGFloat) {
+    commonAnimate(progress: progress)
+  }
+  
+  internal func commonAnimate(progress: CGFloat) {
+    // middle of progress
+    let progress2 = progress < 0.5 ? 0 : (progress - 0.5) * 2
+    leftButtonFading?.progress = progress2
+    rightButtonFading?.progress = progress2
+    // 8/10 of progress
+    let progress3 = progress < 0.2 ? 0 : (progress - 0.2) * 10 / 8
+    carouselViewFading?.progress = progress3
+    compassIconFading?.progress = progress3
+    viewPosition?.progress = progress
+    carouselViewScale?.progress = progress3
+    bubblesViewFading?.progress = progress3
+    BubblesTransform?.progress = progress
+    compassTransform?.progress = progress3
+  }
+  
+  func invalidateTo() {
+  }
+  
+  func invalidateFrom() {
+  }
+}

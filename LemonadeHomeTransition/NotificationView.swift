@@ -7,30 +7,35 @@
 //
 
 import UIKit
+import Interpolate
 
 class NotificationView: UIViewController {
+  // Interpolations
+  var isFrom: Bool!
+  var index: Int!
+  var viewFading: Interpolate?
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    // my tricky way, this should be control by a flag
-    view.heroModifiers = [.fade, .translate(x: 2 * UIScreen.main.bounds.width)]
   }
   
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
+}
+
+// Interpolations
+extension NotificationView: UIAnimateViewController {
+  func setupInterpolationsTo() {
+    viewFading = Interpolate(from: 0, to: 1, function: BasicInterpolation.easeIn, apply: { [weak self] (alpha) in
+      self?.view.alpha = alpha
+    })
+  }
+  func animateTo(progress: CGFloat) {
+    viewFading?.progress = progress
+  }
+  func invalidateTo() {
+    viewFading?.invalidate()
   }
   
-  
-  /*
-   // MARK: - Navigation
-   
-   // In a storyboard-based application, you will often want to do a little preparation before navigation
-   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-   // Get the new view controller using segue.destinationViewController.
-   // Pass the selected object to the new view controller.
-   }
-   */
-  
+  func setupInterpolationsFrom() {}
+  func animateFrom(progress: CGFloat) {}
+  func invalidateFrom() {}
 }
