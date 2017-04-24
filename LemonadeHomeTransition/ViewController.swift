@@ -29,10 +29,12 @@ class ViewController: UIViewController {
   var bubblesViewPosition: Interpolate?
   var carouselViewScale: Interpolate?
   var BubblesViewScale: Interpolate?
+  var compassTransform: Interpolate?
   
   // support
   var carouselRect: CGRect!
   var bubblesOriginalTransform: CGAffineTransform!
+  var compassOriginalTransform: CGAffineTransform!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -40,6 +42,7 @@ class ViewController: UIViewController {
     // Do any additional setup after loading the view, typically from a nib.
     carouselRect = carouselView.frame
     bubblesOriginalTransform = bubblesView.transform
+    compassOriginalTransform = compassIcon.transform
   }
   
 }
@@ -62,8 +65,10 @@ extension ViewController: UIAnimateViewController {
       self?.bubblesView.frame.origin.x = x
     })
     
-    BubblesViewScale = Interpolate(from: 0, to: 1, function: BasicInterpolation.linear, apply: { [weak self] (scale) in
-      self?.bubblesView.transform = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+    compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
+      var t = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
+      t = t.rotated(by: CGFloat.pi * -factor)
+      self?.compassIcon.transform = t
     })
   }
   
@@ -82,8 +87,10 @@ extension ViewController: UIAnimateViewController {
       self?.bubblesView.frame.origin.x = x
     })
     
-    BubblesViewScale = Interpolate(from: 0, to: 1, function: BasicInterpolation.linear, apply: { [weak self] (scale) in
-      self?.bubblesView.transform = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+    compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
+      var t = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
+      t = t.rotated(by: CGFloat.pi * factor)
+      self?.compassIcon.transform = t
     })
   }
   
@@ -113,6 +120,10 @@ extension ViewController: UIAnimateViewController {
       self?.carouselView.frame = frame
     })
     
+    BubblesViewScale = Interpolate(from: 0, to: 1, function: BasicInterpolation.linear, apply: { [weak self] (scale) in
+      self?.bubblesView.transform = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+    })
+    
   }
   
   func animateTo(progress: CGFloat) {
@@ -137,6 +148,7 @@ extension ViewController: UIAnimateViewController {
     bubblesViewPosition?.progress = progress
     carouselViewScale?.progress = progress3
     BubblesViewScale?.progress = progress
+    compassTransform?.progress = progress3
   }
   
   func invalidateTo() {
