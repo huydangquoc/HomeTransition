@@ -26,15 +26,15 @@ class ViewController: UIViewController {
   var compassIconFading: Interpolate?
   var carouselViewFading: Interpolate?
   var viewPosition: Interpolate?
-  var bubblesViewPosition: Interpolate?
   var carouselViewScale: Interpolate?
-  var BubblesViewScale: Interpolate?
+  var BubblesTransform: Interpolate?
   var compassTransform: Interpolate?
   
   // support
   var carouselRect: CGRect!
   var bubblesOriginalTransform: CGAffineTransform!
   var compassOriginalTransform: CGAffineTransform!
+  var viewWidth: CGFloat!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -43,6 +43,7 @@ class ViewController: UIViewController {
     carouselRect = carouselView.frame
     bubblesOriginalTransform = bubblesView.transform
     compassOriginalTransform = compassIcon.transform
+    viewWidth = view.bounds.size.width
   }
   
 }
@@ -53,16 +54,10 @@ extension ViewController: UIAnimateViewController {
   func setupInterpolationsTo() {
     commonSetupInterpolations()
     
-    let endX = CGFloat(index) * self.view.bounds.size.width
-    let startX = endX - self.view.bounds.size.width
+    let endX = CGFloat(index) * viewWidth
+    let startX = endX - viewWidth
     viewPosition = Interpolate(values: [startX, endX], apply: { [weak self] (x) in
       self?.view.frame.origin.x = x
-    })
-    
-    let start2 = CGFloat(index) * self.view.bounds.size.width
-    let end2 = start2 - self.view.bounds.size.width
-    bubblesViewPosition = Interpolate(values: [start2, end2], apply: { [weak self] (x) in
-      self?.bubblesView.frame.origin.x = x
     })
     
     compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
@@ -70,27 +65,35 @@ extension ViewController: UIAnimateViewController {
       t = t.rotated(by: CGFloat.pi * -factor)
       self?.compassIcon.transform = t
     })
+    
+    BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
+      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      t = t.translatedBy(x: deltaX, y: 0)
+      self?.bubblesView.transform = t
+    })
   }
   
   func setupInterpolationsFrom() {
     commonSetupInterpolations()
     
-    let startX = CGFloat(index + 1) * self.view.bounds.size.width
-    let endX = startX - self.view.bounds.size.width
+    let startX = CGFloat(index + 1) * viewWidth
+    let endX = startX - viewWidth
     viewPosition = Interpolate(values: [startX, endX], apply: { [weak self] (x) in
       self?.view.frame.origin.x = x
-    })
-    
-    let start2 = CGFloat(index - 2) * self.view.bounds.size.width
-    let end2 = start2 + self.view.bounds.size.width
-    bubblesViewPosition = Interpolate(values: [start2, end2], apply: { [weak self] (x) in
-      self?.bubblesView.frame.origin.x = x
     })
     
     compassTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
       var t = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
       t = t.rotated(by: CGFloat.pi * factor)
       self?.compassIcon.transform = t
+    })
+    
+    BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
+      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
+      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      t = t.translatedBy(x: -deltaX, y: 0)
+      self?.bubblesView.transform = t
     })
   }
   
@@ -120,10 +123,6 @@ extension ViewController: UIAnimateViewController {
       self?.carouselView.frame = frame
     })
     
-    BubblesViewScale = Interpolate(from: 0, to: 1, function: BasicInterpolation.linear, apply: { [weak self] (scale) in
-      self?.bubblesView.transform = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
-    })
-    
   }
   
   func animateTo(progress: CGFloat) {
@@ -135,7 +134,6 @@ extension ViewController: UIAnimateViewController {
   }
   
   internal func commonAnimate(progress: CGFloat) {
-    bubblesViewFading?.progress = progress
     // middle of progress
     let progress2 = progress < 0.5 ? 0 : (progress - 0.5) * 2
     leftButtonFading?.progress = progress2
@@ -145,9 +143,9 @@ extension ViewController: UIAnimateViewController {
     carouselViewFading?.progress = progress3
     compassIconFading?.progress = progress3
     viewPosition?.progress = progress
-    bubblesViewPosition?.progress = progress
     carouselViewScale?.progress = progress3
-    BubblesViewScale?.progress = progress
+    bubblesViewFading?.progress = progress3
+    BubblesTransform?.progress = progress
     compassTransform?.progress = progress3
   }
   
