@@ -70,9 +70,12 @@ extension ViewController: UIAnimateViewController {
     })
     
     BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
-      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
-      let deltaX = (self?.viewWidth)! * (1 - scale) * 3
-      t = t.translatedBy(x: deltaX, y: 0)
+      let deltaX = (self?.viewWidth)! * (1 - scale)
+      var t = (self?.bubblesOriginalTransform)!.translatedBy(x: deltaX, y: 0)
+      t = t.scaledBy(x: scale, y: scale)
+      
+      print("deltaX", deltaX)
+      
       self?.bubblesView.transform = t
     })
   }
@@ -93,9 +96,9 @@ extension ViewController: UIAnimateViewController {
     })
     
     BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
-      var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
-      let deltaX = (self?.viewWidth)! * (1 - scale) * 3
-      t = t.translatedBy(x: -deltaX, y: 0)
+      let deltaX = (self?.viewWidth)! * (1 - scale)
+      var t = (self?.bubblesOriginalTransform)!.translatedBy(x: -deltaX, y: 0)
+      t = t.scaledBy(x: scale, y: scale)
       self?.bubblesView.transform = t
     })
   }
@@ -148,7 +151,7 @@ extension ViewController: UIAnimateViewController {
     compassIconFading?.progress = progress3
     viewPosition?.progress = progress
     carouselTransform?.progress = progress3
-    bubblesViewFading?.progress = progress3
+    bubblesViewFading?.progress = progress
     BubblesTransform?.progress = progress
     compassTransform?.progress = progress3
   }
