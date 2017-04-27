@@ -26,14 +26,16 @@ class ViewController: UIViewController {
   var compassIconFading: Interpolate?
   var carouselViewFading: Interpolate?
   var viewPosition: Interpolate?
-  var carouselViewScale: Interpolate?
+  var carouselTransform: Interpolate?
   var BubblesTransform: Interpolate?
   var compassTransform: Interpolate?
+  
   
   // support
   var carouselRect: CGRect!
   var bubblesOriginalTransform: CGAffineTransform!
   var compassOriginalTransform: CGAffineTransform!
+  var carouselOriginalTransform: CGAffineTransform!
   var viewWidth: CGFloat!
   
   override func viewDidLoad() {
@@ -43,6 +45,7 @@ class ViewController: UIViewController {
     carouselRect = carouselView.frame
     bubblesOriginalTransform = bubblesView.transform
     compassOriginalTransform = compassIcon.transform
+    carouselOriginalTransform = carouselView.transform
     viewWidth = view.bounds.size.width
   }
   
@@ -68,7 +71,7 @@ extension ViewController: UIAnimateViewController {
     
     BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
       var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
-      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      let deltaX = (self?.viewWidth)! * (1 - scale) * 3
       t = t.translatedBy(x: deltaX, y: 0)
       self?.bubblesView.transform = t
     })
@@ -91,7 +94,7 @@ extension ViewController: UIAnimateViewController {
     
     BubblesTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), function: BasicInterpolation.linear, apply: { [weak self] (scale) in
       var t = (self?.bubblesOriginalTransform)!.scaledBy(x: scale, y: scale)
-      var deltaX = (self?.viewWidth)! * (1 - scale) * 2
+      let deltaX = (self?.viewWidth)! * (1 - scale) * 3
       t = t.translatedBy(x: -deltaX, y: 0)
       self?.bubblesView.transform = t
     })
@@ -119,8 +122,9 @@ extension ViewController: UIAnimateViewController {
     })
     
     let fromRect = CGRect(x: carouselRect.origin.x + carouselRect.width / 2, y: carouselRect.origin.y + carouselRect.height / 2, width: 0, height: 0)
-    carouselViewScale = Interpolate(from: fromRect, to: carouselRect, function: BasicInterpolation.easeIn, apply: { [weak self] (frame) in
-      self?.carouselView.frame = frame
+    
+    carouselTransform = Interpolate(from: CGFloat(0), to: CGFloat(1), apply: { [weak self] (factor) in
+      self?.carouselView.transform = (self?.compassOriginalTransform)!.scaledBy(x: factor, y: factor)
     })
     
   }
@@ -139,11 +143,11 @@ extension ViewController: UIAnimateViewController {
     leftButtonFading?.progress = progress2
     rightButtonFading?.progress = progress2
     // 8/10 of progress
-    let progress3 = progress < 0.2 ? 0 : (progress - 0.2) * 10 / 8
+    let progress3 = progress < 0.3 ? 0 : (progress - 0.3) * 10 / 7
     carouselViewFading?.progress = progress3
     compassIconFading?.progress = progress3
     viewPosition?.progress = progress
-    carouselViewScale?.progress = progress3
+    carouselTransform?.progress = progress3
     bubblesViewFading?.progress = progress3
     BubblesTransform?.progress = progress
     compassTransform?.progress = progress3
